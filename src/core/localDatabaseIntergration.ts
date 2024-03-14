@@ -2,7 +2,7 @@ export default class localDatabase {
   database: object;
   actions: object;
   humanReadable: object;
- 
+
   constructor() {
     this.database = {};
     this.actions = {
