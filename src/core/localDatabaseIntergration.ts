@@ -21,16 +21,16 @@ export default class localDatabase {
     }
   }
 
-  addEntry(key: number, data: object) {
-    this.database[key] = data;
+  addEntry(key: number, data: string) {
+    this.database[key] = JSON.parse(data);
   }
 
   deleteEntry(key: string) {
     delete this.database[key];
   }
 
-  changeEntry(key: string, changedData: object) {
-    this.database[key] = changedData;
+  changeEntry(key: string, changedData: string) {
+    this.database[key] = JSON.parse(changedData);
   }
 
   getEntry(key: string): object {
