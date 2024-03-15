@@ -3,6 +3,7 @@ import * as sha256 from 'sha256';
 // import * as bcrypt from 'bcrypt'; // i want to use this for the passwords
 import { flowchartParser, flowchartExecuter } from '../core/flowchartHandler';
 import accountsHandler from '../core/accountsHandler';
+import backendManeger from "../core/backendManager";
 import localStorage from "../core/localDatabaseIntergration";
 
 export default function Home() {
@@ -18,18 +19,15 @@ export default function Home() {
   const testEmail = 'test@example.com';
   const testPassword = 'QWERTY';
 
-  let FP: flowchartParser = new flowchartParser();
-  let FE: flowchartExecuter = new flowchartExecuter();
-  let AH: accountsHandler = new accountsHandler({'localStorage': true});
+  let BM: backendManeger = new backendManeger();
 
-  let accountHash = AH.createAccount(testEmail, sha256(testPassword));
-  AH.authorizeAccount(testEmail, sha256(testPassword), accountHash);
-  AH.addIntergration(accountHash, 'localStorage');
-  AH.initializeIntergration(accountHash, 'localStorage');
+  BM.signUpUser(testEmail, sha256(testPassword));
+  BM.loginUser(testEmail, sha256(testPassword));
 
-  let parsedFlowchart = FP.parseFlowchart(testFlowchart); 
-  FE.executeFlowchart(parsedFlowchart.executible, AH.authorizedAccounts[accountHash]);
-  console.log(AH.authorizedAccounts[accountHash].localStorage.database);
+  let accountHash = BM.AH.getAccountString(testEmail); // this gets ran only internally and is never used for unauthorised users
+  BM.runFlowchart(accountHash, testFlowchart);
+
+  let parsedFlowchart = BM.FP.parseFlowchart(testFlowchart); 
 
   return (
     <Mermaid chart={parsedFlowchart.chart} />
