@@ -1,8 +1,9 @@
-'use client';
-
 import Mermaid from '../components/mermaid';
-import { flowchartParser, flowchartExecuter } from "../core/flowchartHandler";
-import localStorage from "../core/localDatabaseIntergration.ts";
+import * as sha256 from 'sha256';
+// import * as bcrypt from 'bcrypt'; // i want to use this for the passwords
+import { flowchartParser, flowchartExecuter } from '../core/flowchartHandler';
+import accountsHandler from '../core/accountsHandler';
+import localStorage from "../core/localDatabaseIntergration";
 
 export default function Home() {
   // testing code
@@ -14,16 +15,21 @@ export default function Home() {
     addEntry(meme,{"number":21})@localStorage~=21[corne-->00000];
   `;
 
-  let appIntergrations = {
-    'localStorage': new localStorage(),
-  }
+  const testEmail = 'test@example.com';
+  const testPassword = 'QWERTY';
 
   let FP: flowchartParser = new flowchartParser();
   let FE: flowchartExecuter = new flowchartExecuter();
-  
+  let AH: accountsHandler = new accountsHandler({'localStorage': true});
+
+  let accountHash = AH.createAccount(testEmail, sha256(testPassword));
+  AH.authorizeAccount(testEmail, sha256(testPassword), accountHash);
+  AH.addIntergration(accountHash, 'localStorage');
+  AH.initializeIntergration(accountHash, 'localStorage');
+
   let parsedFlowchart = FP.parseFlowchart(testFlowchart); 
-  FE.executeFlowchart(parsedFlowchart.executible, appIntergrations);
-  console.log(appIntergrations.localStorage.database);
+  FE.executeFlowchart(parsedFlowchart.executible, AH.authorizedAccounts[accountHash]);
+  console.log(AH.authorizedAccounts[accountHash].localStorage.database);
 
   return (
     <Mermaid chart={parsedFlowchart.chart} />
